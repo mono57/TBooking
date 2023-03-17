@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { RidesModule } from './rides/rides.module';
+import { SeatsModule } from './seats/seats.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { RidesModule } from './rides/rides.module';
       'mongodb+srv://tbooking:ecHmDq4leSr9PKEy@tbooking-cluster.tmztgm0.mongodb.net/?retryWrites=true&w=majority',
     ),
     RidesModule,
+    SeatsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
