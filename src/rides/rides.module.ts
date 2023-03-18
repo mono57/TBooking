@@ -1,3 +1,5 @@
+import { SeatsModule } from 'src/seats/seats.module';
+import { RideSeat, RideSeatSchema } from './schemas/ride-seat.schema';
 import { Module } from '@nestjs/common';
 import { RidesController } from './rides.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -8,7 +10,11 @@ import { AuthModule } from 'src/auth/auth.module';
 @Module({
   imports: [
     AuthModule,
-    MongooseModule.forFeature([{ name: Ride.name, schema: RideSchema }]),
+    SeatsModule,
+    MongooseModule.forFeature([
+      { name: Ride.name, schema: RideSchema },
+      { name: RideSeat.name, schema: RideSeatSchema },
+    ]),
   ],
   providers: [RidesService],
   controllers: [RidesController],
