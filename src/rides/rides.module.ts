@@ -12,5 +12,6 @@ import { AuthModule } from 'src/auth/auth.module';
   ],
   providers: [RidesService],
   controllers: [RidesController],
+  exports: [RidesService],
 })
 export class RidesModule {}
