@@ -33,7 +33,7 @@ export class SeatsService {
     }
   }
 
-  async findOne(id: ObjectId): Promise<any> {
+  async findOne(id: ObjectId): Promise<Seat> {
     try {
       const seat = await this.model.findById(id);
 

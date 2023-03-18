@@ -1,3 +1,6 @@
+import { SeatsService } from './../seats/seats.service';
+import { Seat } from 'src/seats/schemas/seat.schema';
+import { RideSeat, RideSeatDocument } from './schemas/ride-seat.schema';
 import { Ride, RideDocument } from './schemas/rides.schema';
 import {
   BadRequestException,
@@ -9,10 +12,15 @@ import { Model, ObjectId } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateRideDto } from './dtos/create-ride.dto';
 import { User } from 'src/auth/schemas/user.schema';
+import { CreateRideSeatDto } from './dtos/create-ride-seat.dto';
 
 @Injectable()
 export class RidesService {
-  constructor(@InjectModel(Ride.name) private model: Model<RideDocument>) {}
+  constructor(
+    @InjectModel(Ride.name) private model: Model<RideDocument>,
+    @InjectModel(RideSeat.name) private rideSeatModel: Model<RideSeatDocument>,
+    private readonly seatService: SeatsService,
+  ) {}
 
   async create(user: User, dto: CreateRideDto): Promise<any> {
     try {
@@ -45,6 +53,45 @@ export class RidesService {
       if (!seat) throw new NotFoundException('The ride has not found !');
 
       return seat;
+    } catch (err) {
+      throw new InternalServerErrorException(err);
+    }
+  }
+
+  async findRideSeat(seat: Seat, ride: Ride): Promise<any> {
+    const rideSeat = await this.rideSeatModel.findOne({
+      seat,
+      ride,
+    });
+
+    if (rideSeat === null) throw new NotFoundException('Ride seat not found!');
+
+    return rideSeat;
+  }
+
+  async createRideSeat(user: User, rideId: ObjectId, dto: CreateRideSeatDto) {
+    try {
+      const ride = await this.findOne(rideId);
+      const seat = await this.seatService.findOne(dto.seat);
+
+      if (!seat.usable)
+        throw new BadRequestException('The seat you choose is not usable!');
+
+      const rideSeat = await this.rideSeatModel.findOne({
+        seat,
+        ride,
+      });
+
+      if (!rideSeat === null)
+        throw new BadRequestException('Ride Seat already exists!');
+
+      const rideSeatObj = new this.rideSeatModel({
+        ride,
+        seat,
+        created_by_user: user,
+      });
+
+      return await rideSeatObj.save();
     } catch (err) {
       throw new InternalServerErrorException(err);
     }

@@ -5,8 +5,10 @@ import {
   Injectable,
   InternalServerErrorException,
   BadRequestException,
+  NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Model, ObjectId } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from 'src/auth/schemas/user.schema';
 import { CreateBookingDto } from './dtos/create-booking.dto';
@@ -27,19 +29,43 @@ export class BookingService {
       const _seat = await this.seatService.findOne(seat);
       const _ride = await this.rideService.findOne(ride);
 
-      const rideExists = await this.model.exists({ seat, ride, ride_on });
+      const rideSeat = await this.rideService.findRideSeat(_seat, _ride);
+
+      const rideExists = await this.model.exists({
+        ride_seat: rideSeat,
+        ride_on,
+      });
 
       if (!rideExists === null)
         throw new BadRequestException('Booking already exits !');
 
       const bookingObj = new this.model({
-        ride: _ride,
-        seat: _seat,
+        ride_seat: rideSeat,
         ride_on,
         created_by_user: user,
       });
 
-      return bookingObj.save();
+      return await bookingObj.save();
+    } catch (err) {
+      throw new InternalServerErrorException(err);
+    }
+  }
+
+  async cancel(user: User, id: ObjectId): Promise<any> {
+    try {
+      const booking = await this.model.findById(id);
+
+      if (booking === null) throw new NotFoundException('Booking not found');
+
+      if (booking.created_by_user.valueOf() !== user['id'].valueOf())
+        throw new UnauthorizedException(
+          'You are not allow to cancel this booking',
+        );
+
+      booking.cancel_date = new Date();
+      booking.canceled = true;
+
+      return await booking.save();
     } catch (err) {
       throw new InternalServerErrorException(err);
     }

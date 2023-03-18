@@ -1,13 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
-import { User } from 'src/auth/schemas/user.schema';
+import { HydratedDocument } from 'mongoose';
+import { BaseSchema } from 'src/core/schemas/base.schema';
 
 export type SeatDocument = HydratedDocument<Seat>;
-
-class BaseSchema {
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  created_by_user: User;
-}
 
 @Schema()
 export class Seat extends BaseSchema {
