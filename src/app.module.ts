@@ -23,7 +23,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
           },
         },
         defaults: {
-          from: '<sendgrid_from_email_address>',
+          from: config.get('EMAIL_SENDER'),
         },
       }),
       inject: [ConfigService],

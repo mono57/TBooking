@@ -1,3 +1,4 @@
+import { MailService } from './../core/services/mail.service';
 import { RidesService } from './../rides/rides.service';
 import { SeatsService } from './../seats/seats.service';
 import { Booking, BookingDocument } from './schemas/booking.schema';
@@ -19,6 +20,7 @@ export class BookingService {
     @InjectModel(Booking.name) private model: Model<BookingDocument>,
     private readonly seatService: SeatsService,
     private readonly ridesService: RidesService,
+    private readonly mailService: MailService,
   ) {}
 
   async create(user: User, dto: CreateBookingDto): Promise<any> {
@@ -44,8 +46,10 @@ export class BookingService {
         ride_on,
         created_by_user: user,
       });
+      const savedObj = await bookingObj.save();
+      this.mailService.sendMail('Booking Successful', user.email, 'You added');
 
-      return await bookingObj.save();
+      return savedObj;
     } catch (err) {
       throw new InternalServerErrorException(err);
     }
@@ -64,8 +68,15 @@ export class BookingService {
 
       booking.cancel_date = new Date();
       booking.canceled = true;
+      const canceledBooking = await booking.save();
 
-      return await booking.save();
+      this.mailService.sendMail(
+        'Booking Canceled',
+        user.email,
+        'You cancel the booking',
+      );
+
+      return canceledBooking;
     } catch (err) {
       throw new InternalServerErrorException(err);
     }
