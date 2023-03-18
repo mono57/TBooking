@@ -1,7 +1,16 @@
+import { ObjectId } from 'mongoose';
 import { CreateBookingDto } from './dtos/create-booking.dto';
 import { BookingService } from './booking.service';
 import { AuthGuard } from '@nestjs/passport';
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Param,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { User } from 'src/auth/schemas/user.schema';
 
@@ -15,5 +24,15 @@ export class BookingController {
     const booking = this.bookingService.create(currentUser, body);
 
     return booking;
+  }
+
+  @Put(':id/cancel')
+  cancelBooking(
+    @Param('id') id: ObjectId,
+    @GetUser() currentUser: User,
+    @Req() request,
+  ) {
+    console.log('request', request);
+    return this.bookingService.cancel(currentUser, id);
   }
 }
