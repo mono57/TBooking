@@ -18,7 +18,7 @@ export class BookingService {
   constructor(
     @InjectModel(Booking.name) private model: Model<BookingDocument>,
     private readonly seatService: SeatsService,
-    private readonly rideService: RidesService,
+    private readonly ridesService: RidesService,
   ) {}
 
   async create(user: User, dto: CreateBookingDto): Promise<any> {
@@ -27,9 +27,9 @@ export class BookingService {
     //Todo: Validate that ride_on date is not in the past
     try {
       const _seat = await this.seatService.findOne(seat);
-      const _ride = await this.rideService.findOne(ride);
+      const _ride = await this.ridesService.findOne(ride);
 
-      const rideSeat = await this.rideService.findRideSeat(_seat, _ride);
+      const rideSeat = await this.ridesService.findRideSeat(_seat, _ride);
 
       const rideExists = await this.model.exists({
         ride_seat: rideSeat,
@@ -69,5 +69,13 @@ export class BookingService {
     } catch (err) {
       throw new InternalServerErrorException(err);
     }
+  }
+
+  async searchAvailableTickets(rideId: string): Promise<any> {
+    return await this.ridesService.findAvailableRideSeatByRide(rideId);
+  }
+
+  async findAll(): Promise<any> {
+    return await this.model.find();
   }
 }

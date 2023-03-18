@@ -5,14 +5,17 @@ import { AuthGuard } from '@nestjs/passport';
 import {
   Body,
   Controller,
+  Get,
   Param,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { User } from 'src/auth/schemas/user.schema';
+import { SearchTicketDto } from 'src/rides/dtos/search-ticket.dto';
 
 @UseGuards(AuthGuard())
 @Controller('booking')
@@ -27,12 +30,17 @@ export class BookingController {
   }
 
   @Put(':id/cancel')
-  cancelBooking(
-    @Param('id') id: ObjectId,
-    @GetUser() currentUser: User,
-    @Req() request,
-  ) {
-    console.log('request', request);
+  cancelBooking(@Param('id') id: ObjectId, @GetUser() currentUser: User) {
     return this.bookingService.cancel(currentUser, id);
+  }
+
+  @Get('available')
+  availableSeats(@Query() query: SearchTicketDto) {
+    return this.bookingService.searchAvailableTickets(query.ride);
+  }
+
+  @Get()
+  findAllBooking() {
+    return this.bookingService.findAll();
   }
 }

@@ -8,7 +8,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { Model, ObjectId } from 'mongoose';
+import mongoose, { Model, ObjectId } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateRideDto } from './dtos/create-ride.dto';
 import { User } from 'src/auth/schemas/user.schema';
@@ -95,5 +95,26 @@ export class RidesService {
     } catch (err) {
       throw new InternalServerErrorException(err);
     }
+  }
+
+  async findAvailableRideSeatByRide(rideId: string): Promise<any> {
+    return await this.rideSeatModel.aggregate([
+      {
+        $lookup: {
+          from: 'bookings',
+          localField: '_id',
+          foreignField: 'ride_seat',
+          as: 'book',
+        },
+      },
+      {
+        $match: {
+          'book.ride_seat': {
+            $exists: false,
+          },
+          ride: new mongoose.Types.ObjectId(rideId),
+        },
+      },
+    ]);
   }
 }
