@@ -1,4 +1,4 @@
-import { Ride, RideDocument } from './rides.schema';
+import { Ride, RideDocument } from './schemas/rides.schema';
 import {
   BadRequestException,
   Injectable,
