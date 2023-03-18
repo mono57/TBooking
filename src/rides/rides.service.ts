@@ -117,4 +117,8 @@ export class RidesService {
       },
     ]);
   }
+
+  async countAvailableRides(): Promise<any> {
+    return await this.model.count();
+  }
 }
