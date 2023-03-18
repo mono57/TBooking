@@ -21,7 +21,14 @@ export class User {
   @Prop()
   phone_number: string;
 
+  @Prop({ required: true, default: true })
+  is_active: boolean;
+
+  @Prop({ required: true, default: false })
+  is_superuser: boolean;
+
   setPassword: (string) => void;
+  isAdmin: () => boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
@@ -31,4 +38,8 @@ UserSchema.methods.setPassword = async function setPassword(password: string) {
   const hashedPassword = await bcrypt.hash(password, salt);
 
   this.password = hashedPassword;
+};
+
+UserSchema.methods.isAdmin = async function isAdmin() {
+  return this.is_active && this.is_superuser;
 };
