@@ -29,8 +29,11 @@ import { MailerModule } from '@nestjs-modules/mailer';
       inject: [ConfigService],
     }),
     AuthModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     MongooseModule.forRoot(
-      'mongodb+srv://tbooking:ecHmDq4leSr9PKEy@tbooking-cluster.tmztgm0.mongodb.net/?retryWrites=true&w=majority',
+      `mongodb+srv://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@tbooking-cluster.tmztgm0.mongodb.net/?retryWrites=true&w=majority`,
     ),
     RidesModule,
     SeatsModule,
