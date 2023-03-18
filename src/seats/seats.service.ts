@@ -4,9 +4,10 @@ import {
   Injectable,
   InternalServerErrorException,
   BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, ObjectId } from 'mongoose';
 import { User } from 'src/auth/schemas/user.schema';
 
 @Injectable()
@@ -30,5 +31,23 @@ export class SeatsService {
 
       throw new InternalServerErrorException(err);
     }
+  }
+
+  async findOne(id: ObjectId): Promise<any> {
+    try {
+      const seat = await this.model.findById(id);
+
+      if (!seat) throw new NotFoundException('The seat has not found !');
+
+      return seat;
+    } catch (err) {
+      throw new InternalServerErrorException(err);
+    }
+  }
+
+  async findAll(): Promise<Array<Seat>> {
+    const seats = await this.model.find();
+
+    return seats;
   }
 }
