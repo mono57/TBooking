@@ -2,7 +2,7 @@ import { ObjectId } from 'mongoose';
 import { CreateRideDto } from './dtos/create-ride.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { RidesService } from './rides.service';
-import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { User } from 'src/auth/schemas/user.schema';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { CreateRideSeatDto } from './dtos/create-ride-seat.dto';
@@ -26,5 +26,10 @@ export class RidesController {
     @GetUser() currentUser: User,
   ) {
     return this.ridesService.createRideSeat(currentUser, seatId, body);
+  }
+
+  @Get('count')
+  countRides() {
+    return this.ridesService.countAvailableRides();
   }
 }
